@@ -16,5 +16,7 @@ public class Light implements Agent {
 			state = !state;
 		}
 	}
+
+
 }
 

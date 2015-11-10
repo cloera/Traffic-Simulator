@@ -4,7 +4,6 @@ package myproject.model;
 import java.util.Set;
 import java.util.HashSet;
 
-import myproject.model.CarHandler;
 
 /**
  * A road holds cars.
@@ -13,7 +12,7 @@ public class Road implements CarHandler{
 
 	private Set<Car> cars;
 	private double endPosition;
-	CarHandler nextRoad;
+	Intersections nextRoad;
 	
 	Road() { 
 		this.endPosition = MP.roadLength;
@@ -21,7 +20,9 @@ public class Road implements CarHandler{
 	}
 	
 	public boolean accept(Car c, double frontPosition) {
-		if (c != null) {  cars.remove(c); }
+		if (c != null) {  
+			cars.remove(c); 
+		}
 		
 		if(frontPosition > endPosition) {
 			return nextRoad.accept(c, frontPosition - endPosition);
@@ -46,6 +47,7 @@ public class Road implements CarHandler{
 	    if (obstaclePosition == Double.POSITIVE_INFINITY) {
 	      double distanceToEnd = fromPosition - this.endPosition;
 	      obstaclePosition = nextRoad.distanceToObstacle(fromPosition - this.endPosition);
+	      return obstaclePosition;
 	    }
 	    return obstaclePosition - fromPosition;
 	}
@@ -53,4 +55,12 @@ public class Road implements CarHandler{
 	public Set<Car> getCars() {
 		return cars;
 	}
+
+	@Override
+	public void setCurrentIntersection(Intersections intersection) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
 }

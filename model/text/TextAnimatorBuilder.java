@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Observable;
 import myproject.model.AnimatorBuilder;
 import myproject.model.Car;
-import myproject.model.Light;
-import myproject.model.Road;
+import myproject.model.Intersections;
+import myproject.model.CarHandler;
 import myproject.util.Animator;
 
 /**
@@ -23,13 +23,13 @@ public class TextAnimatorBuilder implements AnimatorBuilder {
 		animator = null;
 		return returnValue;
 	}
-	public void addLight(Light d, int i, int j) {
+	public void addLight(Intersections d, int i, int j) {
 		animator.addLight(d,i,j);
 	}
-	public void addHorizontalRoad(Road l, int i, int j, boolean eastToWest) {
+	public void addHorizontalRoad(CarHandler l, int i, int j, boolean eastToWest) {
 		animator.addRoad(l,i,j);
 	}
-	public void addVerticalRoad(Road l, int i, int j, boolean southToNorth) {
+	public void addVerticalRoad(CarHandler l, int i, int j, boolean southToNorth) {
 		animator.addRoad(l,i,j);
 	}
 
@@ -49,31 +49,31 @@ public class TextAnimatorBuilder implements AnimatorBuilder {
 			}
 		}
 
-		private List<Element<Road>> roadElements;
-		private List<Element<Light>> lightElements;
+		private List<Element<CarHandler>> roadElements;
+		private List<Element<Intersections>> lightElements;
 		TextAnimator() {
-			roadElements = new ArrayList<Element<Road>>();
-			lightElements = new ArrayList<Element<Light>>();
+			roadElements = new ArrayList<Element<CarHandler>>();
+			lightElements = new ArrayList<Element<Intersections>>();
 		}
-		void addLight(Light x, int i, int j) {
-			lightElements.add(new Element<Light>(x,i,j));
+		void addLight(Intersections x, int i, int j) {
+			lightElements.add(new Element<Intersections>(x,i,j));
 		}
-		void addRoad(Road x, int i, int j) {
-			roadElements.add(new Element<Road>(x,i,j));
+		void addRoad(CarHandler x, int i, int j) {
+			roadElements.add(new Element<CarHandler>(x,i,j));
 		}
 
 		public void dispose() { }
 
 		public void update(Observable o, Object arg) {
-			for (Element<Light> e : lightElements) {
+			for (Element<Intersections> e : lightElements) {
 				System.out.print("Light at (" + e.i + "," + e.j + "): ");
-				if (e.x.getState()) {
+				if (e.x.getLight().getState()) {
 					System.out.println("Blue");
 				} else {
 					System.out.println("Yellow");
 				}
 			}
-			for (Element<Road> e : roadElements) {
+			for (Element<CarHandler> e : roadElements) {
 				for (Car d : e.x.getCars()) {
 					System.out.print("Road at (" + e.i + "," + e.j + "): ");
 					System.out.println("Car at " + d.getPosition());

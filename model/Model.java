@@ -42,17 +42,18 @@ public class Model extends Observable {
 	 *  <p>
 	 */
 	public Model(AnimatorBuilder builder, int rows, int columns) {
-		this.time = this.time
 		if (rows < 0 || columns < 0 || (rows == 0 && columns == 0)) {
 			throw new IllegalArgumentException();
 		}
 		if (builder == null) {
 			builder = new NullAnimatorBuilder();
 		}
+		this.time = new TimeServerList();
 		this.agents = new ArrayList<Agent>();
 		setup(builder, rows, columns);
 		this.animator = builder.getAnimator();
 		super.addObserver(animator);
+		this.time.addObserver(animator);
 	}
 
 	/**
@@ -80,14 +81,14 @@ public class Model extends Observable {
 	 */
 	private void setup(AnimatorBuilder builder, int rows, int columns) {
 		List<CarHandler> roads = new ArrayList<CarHandler>();
-		Light[][] intersections = new Light[rows][columns];
+		Intersections[][] intersections = new Intersections[rows][columns];
 
 		// Add Lights
 		for (int i=0; i<rows; i++) {
 			for (int j=0; j<columns; j++) {
-				intersections[i][j] = new Light();
+				intersections[i][j] = new IntersectionObj();
 				builder.addLight(intersections[i][j], i, j);
-				agents.add(intersections[i][j]);
+				time.enqueue(this.time.currentTime(), intersections[i][j].getLight());
 			}
 		}
 
@@ -95,7 +96,7 @@ public class Model extends Observable {
 		boolean eastToWest = false;
 		for (int i=0; i<rows; i++) {
 			for (int j=0; j<=columns; j++) {
-				Road l = new Road();
+				CarHandler l = new Road();
 				builder.addHorizontalRoad(l, i, j, eastToWest);
 				roads.add(l);
 			}
@@ -106,7 +107,7 @@ public class Model extends Observable {
 		boolean southToNorth = false;
 		for (int j=0; j<columns; j++) {
 			for (int i=0; i<=rows; i++) {
-				Road l = new Road();
+				CarHandler l = new Road();
 				builder.addVerticalRoad(l, i, j, southToNorth);
 				roads.add(l);
 			}
@@ -116,7 +117,7 @@ public class Model extends Observable {
 		// Add Cars
 		for (CarHandler l : roads) {
 			Car car = new Car();
-			agents.add(car);
+			time.enqueue(this.time.currentTime(), car);
 			l.accept(car, car.getFrontPosition());
 		}
 	}

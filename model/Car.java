@@ -1,7 +1,6 @@
 package myproject.model;
 
 
-
 /**
  * A car remembers its position from the beginning of its road.
  * Cars have random velocity and random movement pattern:
@@ -17,6 +16,7 @@ public class Car implements Agent {
 	private double stopDistance;
 	private double brakeDistance;
 	private double timeStep;
+	private Intersections intersection;
 	private CarHandler currentRoad;
 	private TimeServer agents;
 	private java.awt.Color color;
@@ -56,6 +56,10 @@ public class Car implements Agent {
 	
 	void setFrontPosition(double frontPosition) {
 		this.frontPosition = frontPosition;
+	}
+	
+	void setCurrentIntersection(Intersections intersection) {
+		this.intersection = intersection;
 	}
 	
 	double backPosition() {
