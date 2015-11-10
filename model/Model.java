@@ -3,6 +3,8 @@ package myproject.model;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Observable;
+
+import myproject.model.CarHandler;
 import myproject.util.Animator;
 
 /**
@@ -14,7 +16,7 @@ public class Model extends Observable {
 	private List<Agent> agents;
 	private Animator animator;
 	private boolean disposed;
-	private double time;
+	private TimeServer time;
 
 	/** Creates a model to be visualized using the <code>builder</code>.
 	 *  If the builder is null, no visualization is performed.
@@ -40,6 +42,7 @@ public class Model extends Observable {
 	 *  <p>
 	 */
 	public Model(AnimatorBuilder builder, int rows, int columns) {
+		this.time = this.time
 		if (rows < 0 || columns < 0 || (rows == 0 && columns == 0)) {
 			throw new IllegalArgumentException();
 		}
@@ -58,15 +61,10 @@ public class Model extends Observable {
 	public void run(double duration) {
 		if (disposed)
 			throw new IllegalStateException();
-		for (int i=0; i<duration; i++) {
-			time++;
-			// iterate through a copy because agents may change during iteration...
-			for (Agent a : agents.toArray(new Agent[0])) {
-				a.run(time);
-			}
-			super.setChanged();
-			super.notifyObservers();
-		}
+		this.time.run(duration);
+		super.setChanged();
+		super.notifyObservers();
+
 	}
 
 	/**
@@ -81,7 +79,7 @@ public class Model extends Observable {
 	 * Construct the model, establishing correspondences with the visualizer.
 	 */
 	private void setup(AnimatorBuilder builder, int rows, int columns) {
-		List<Road> roads = new ArrayList<Road>();
+		List<CarHandler> roads = new ArrayList<CarHandler>();
 		Light[][] intersections = new Light[rows][columns];
 
 		// Add Lights
@@ -116,10 +114,10 @@ public class Model extends Observable {
 		}
 
 		// Add Cars
-		for (Road l : roads) {
+		for (CarHandler l : roads) {
 			Car car = new Car();
 			agents.add(car);
-			l.accept(car, car.getFirstPosition());
+			l.accept(car, car.getFrontPosition());
 		}
 	}
 }

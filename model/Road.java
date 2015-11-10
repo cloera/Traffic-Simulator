@@ -1,33 +1,56 @@
 package myproject.model;
 
-import java.util.List;
-import java.util.ArrayList;
+
+import java.util.Set;
+import java.util.HashSet;
+
 import myproject.model.CarHandler;
 
 /**
  * A road holds cars.
  */
 public class Road implements CarHandler{
-	Road() { } // Created only by this package
 
-	private List<Car> cars = new ArrayList<Car>();
+	private Set<Car> cars;
 	private double endPosition;
 	CarHandler nextRoad;
 	
-	public boolean accept(Car c, double firstPosition) {
-		if (c == null || nextRoad == null) { throw new IllegalArgumentException(); }
-		cars.remove(c);
-		if(firstPosition > endPosition) {
-			return nextRoad.accept(c, firstPosition - endPosition);
+	Road() { 
+		this.endPosition = MP.roadLength;
+		this.cars = new HashSet<Car>();
+	}
+	
+	public boolean accept(Car c, double frontPosition) {
+		if (c != null) {  cars.remove(c); }
+		
+		if(frontPosition > endPosition) {
+			return nextRoad.accept(c, frontPosition - endPosition);
 		} else {
 			c.setCurrentRoad(this);
-			c.setFirstPosition(firstPosition);
+			c.setFrontPosition(frontPosition);
 			cars.add(c);
 			return true;
 		}	
 	}
 	
-	public List<Car> getCars() {
+	private double distanceToCarBack(double fromPosition) {
+	    double carBackPosition = Double.POSITIVE_INFINITY;
+	    for (Car c : cars)
+	      if (c.backPosition() >= fromPosition && c.backPosition() < carBackPosition)
+	    	  carBackPosition = c.backPosition();
+	    return carBackPosition;
+	}
+	
+	public double distanceToObstacle(double fromPosition) {
+	    double obstaclePosition = this.distanceToCarBack(fromPosition);
+	    if (obstaclePosition == Double.POSITIVE_INFINITY) {
+	      double distanceToEnd = fromPosition - this.endPosition;
+	      obstaclePosition = nextRoad.distanceToObstacle(fromPosition - this.endPosition);
+	    }
+	    return obstaclePosition - fromPosition;
+	}
+	
+	public Set<Car> getCars() {
 		return cars;
 	}
 }

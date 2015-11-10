@@ -1,6 +1,5 @@
 package myproject.model;
 
-import java.util.Observer;
 
 import myproject.model.TimeServer;
 import java.util.Observable;

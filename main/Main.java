@@ -2,7 +2,7 @@ package myproject.main;
 
 import myproject.model.Model;
 import myproject.model.swing.SwingAnimatorBuilder;
-import myproject.model.text.TextAnimatorBuilder;
+//import myproject.model.text.TextAnimatorBuilder;
 
 /**
  * A static class to demonstrate the visualization aspect of

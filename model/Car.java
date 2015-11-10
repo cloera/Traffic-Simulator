@@ -1,5 +1,7 @@
 package myproject.model;
 
+
+
 /**
  * A car remembers its position from the beginning of its road.
  * Cars have random velocity and random movement pattern:
@@ -7,16 +9,83 @@ package myproject.model;
  * to the beginning of the road, or reverses its direction.
  */
 public class Car implements Agent {
-	Car() { } // Created only by this package
 
-	private double position = 0;
-	private double velocity = (int) Math.ceil(Math.random() * MP.maxVelocity);
-	private java.awt.Color color = new java.awt.Color((int)Math.ceil(Math.random()*255),(int)Math.ceil(Math.random()*255),(int)Math.ceil(Math.random()*255));
-
-	private int sleepSeconds;
-	private double firstPosition;
-	private Road currentRoad;
+	private double position;
+	private double length;
+	private double velocity;
+	private double frontPosition;
+	private double stopDistance;
+	private double brakeDistance;
+	private double timeStep;
+	private CarHandler currentRoad;
 	private TimeServer agents;
+	private java.awt.Color color;
+
+	
+	
+	Car() { 
+		this.position = 0;
+		this.length = MP.carLength;
+		this.velocity = (int) Math.ceil(Math.random() * MP.maxVelocity);
+		this.frontPosition = 0.0;
+		this.stopDistance = MP.carLength/2;
+		this.brakeDistance = this.stopDistance;
+		this.timeStep = MP.timeStep;
+		this.agents = new TimeServerList();
+		this.color = new java.awt.Color((int)Math.ceil(Math.random()*155 + 100), 
+				(int)Math.ceil(Math.random()*155 + 100), 
+					(int)Math.ceil(Math.random()*155 + 100));
+	}
+	
+
+	public void run(double time) {
+				
+		double newVelocity = getNewVelocity();
+		setFrontPosition(newVelocity);
+		
+		if(currentRoad.accept(this, getFrontPosition()))
+			agents.enqueue(agents.currentTime() + timeStep, this);
+		//if ((position + velocity) > (MP.roadLength-MP.carLength))
+			//position = 0;
+	}
+	
+	
+	void setCurrentRoad(CarHandler c) {
+		this.currentRoad = c;
+	}
+	
+	void setFrontPosition(double frontPosition) {
+		this.frontPosition = frontPosition;
+	}
+	
+	double backPosition() {
+		return frontPosition-length;
+	}
+	
+	private Double getNewVelocity() {
+		Double newVelocity;
+		Double distanceToObstacle = currentRoad.distanceToObstacle(frontPosition);
+
+		if (distanceToObstacle == Double.POSITIVE_INFINITY) {
+			return frontPosition + velocity * timeStep;
+		}
+		
+		if (distanceToObstacle < velocity && 
+				(distanceToObstacle > brakeDistance || distanceToObstacle > stopDistance))
+			newVelocity = distanceToObstacle / 2;
+		else {
+			newVelocity = (velocity / (brakeDistance - stopDistance))
+					* (currentRoad.distanceToObstacle(frontPosition) - stopDistance);
+		}
+		newVelocity = Math.max(0.0, newVelocity);
+		newVelocity = Math.min(velocity, newVelocity);
+		Double nextFrontPosition = frontPosition + newVelocity * timeStep;
+		return nextFrontPosition;
+	}
+
+	public double getFrontPosition() {
+		return frontPosition;
+	}
 	
 	public double getPosition() {
 		return position;
@@ -24,32 +93,6 @@ public class Car implements Agent {
 	
 	public java.awt.Color getColor() {
 		return color;
-	}
-	
-	public void run(double time) {
-		double maxVelocity = 30.0; 
-		double brakeDistance = 10.0;
-		double stopDistance = 1.0;
-		
-		double newFirstPosition = firstPosition + velocity * time;
-		
-		if(currentRoad.accept(this, newFirstPosition))
-			agents.enqueue(agents.currentTime() + sleepSeconds, this);
-		//if ((position + velocity) > (MP.roadLength-MP.carLength))
-			//position = 0;
-		//position += velocity;
-	}
-	
-	void setCurrentRoad(Road r) {
-		this.currentRoad = r;
-	}
-	
-	void setFirstPosition(double firstPosition) {
-		this.firstPosition = firstPosition;
-	}
-
-	public double getFirstPosition() {
-		return firstPosition;
 	}
 	
 }
