@@ -6,6 +6,7 @@ import java.util.Observable;
 import myproject.model.AnimatorBuilder;
 import myproject.model.Car;
 import myproject.model.Intersections;
+import myproject.model.Light.LightState;
 import myproject.model.CarHandler;
 import myproject.util.Animator;
 
@@ -67,10 +68,10 @@ public class TextAnimatorBuilder implements AnimatorBuilder {
 		public void update(Observable o, Object arg) {
 			for (Element<Intersections> e : lightElements) {
 				System.out.print("Light at (" + e.i + "," + e.j + "): ");
-				if (e.x.getLight().getState()) {
-					System.out.println("Blue");
+				if (e.x.getLight().getState() == LightState.GREEN) {
+					System.out.println("Green");
 				} else {
-					System.out.println("Yellow");
+					System.out.println("Red");
 				}
 			}
 			for (Element<CarHandler> e : roadElements) {

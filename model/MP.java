@@ -16,5 +16,6 @@ public class MP {
 	public static double brakeDistance = 10.0;
 	public static double stopDistance = 1.0;
 	public static double timeStep = 0.5;
+	public static double carDelay = 10.0;
 }
 

@@ -3,6 +3,8 @@ package myproject.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import myproject.model.Light.LightState;
+
 
 final class IntersectionObj implements Intersections {
 	private Set<Car> cars;
@@ -14,14 +16,13 @@ final class IntersectionObj implements Intersections {
 		this.cars = new HashSet<Car>();
 		this.endPosition = MP.roadLength;
 		this.light = new Light();
-		this.nextRoad = new Road();
 	}
 	
 	public boolean accept(Car c, double frontPosition) {
 		if(frontPosition > this.endPosition) {
 			return this.nextRoad.accept(c, frontPosition - this.endPosition);
 		} else {
-			c.setCurrentIntersection(this);
+			c.setIntersection(this);
 			c.setFrontPosition(frontPosition);
 			this.cars.add(c);
 			return true;
@@ -29,13 +30,16 @@ final class IntersectionObj implements Intersections {
 	}
 	
 	public double distanceToObstacle(double fromPosition) {
-		double obstaclePosition = this.distanceToCarBack(fromPosition);
-	    if (obstaclePosition == Double.POSITIVE_INFINITY) {
-	      double distanceToEnd = fromPosition - this.endPosition;
-	      obstaclePosition = nextRoad.distanceToObstacle(fromPosition - this.endPosition);
-	      return obstaclePosition;
-	    }
-	    return obstaclePosition - fromPosition;
+		if(this.light.getState() == LightState.GREEN || this.light.getState() == LightState.RED) {
+			double obstaclePosition = this.distanceToCarBack(fromPosition);
+		    if (obstaclePosition == Double.POSITIVE_INFINITY) {
+		      double distanceToEnd = fromPosition - this.endPosition;
+		      obstaclePosition = nextRoad.distanceToObstacle(distanceToEnd);
+		      return obstaclePosition;
+		    }
+		    return obstaclePosition - fromPosition;
+		}
+		return 0.0;
 	}
 	
 	private double distanceToCarBack(double fromPosition) {
@@ -53,9 +57,23 @@ final class IntersectionObj implements Intersections {
 	public CarHandler getNextRoad() {
 		return nextRoad;
 	}
+	
+	public Double getEndPosition() {
+		return this.endPosition;
+	}
 
 	public Light getLight() {
-		return light;
+		return this.light;
+	}
+
+
+	public boolean remove(Car car) {
+		if(cars.contains(car)) {
+			cars.remove(car);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 

@@ -8,4 +8,7 @@ public abstract interface CarHandler {
 	public double distanceToObstacle(double fromPosition);
 	public Set<Car> getCars();
 	void setCurrentIntersection(Intersections intersection);
+	public Double getEndPosition();
+	public boolean remove(Car car);
+	public Intersections getNextRoad();
 }

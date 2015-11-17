@@ -7,13 +7,14 @@ import java.util.Observable;
 import myproject.model.CarHandler;
 import myproject.util.Animator;
 
+
+
 /**
  * An example to model for a simple visualization.
  * The model contains roads organized in a matrix.
  * See {@link #Model(AnimatorBuilder, int, int)}.
  */
 public class Model extends Observable {
-	private List<Agent> agents;
 	private Animator animator;
 	private boolean disposed;
 	private TimeServer time;
@@ -42,16 +43,15 @@ public class Model extends Observable {
 	 *  <p>
 	 */
 	public Model(AnimatorBuilder builder, int rows, int columns) {
+		this.time = new TimeServerList();
 		if (rows < 0 || columns < 0 || (rows == 0 && columns == 0)) {
 			throw new IllegalArgumentException();
 		}
 		if (builder == null) {
 			builder = new NullAnimatorBuilder();
 		}
-		this.time = new TimeServerList();
-		this.agents = new ArrayList<Agent>();
 		setup(builder, rows, columns);
-		this.animator = builder.getAnimator();
+		animator = builder.getAnimator();
 		super.addObserver(animator);
 		this.time.addObserver(animator);
 	}
@@ -95,10 +95,46 @@ public class Model extends Observable {
 		// Add Horizontal Roads
 		boolean eastToWest = false;
 		for (int i=0; i<rows; i++) {
-			for (int j=0; j<=columns; j++) {
-				CarHandler l = new Road();
-				builder.addHorizontalRoad(l, i, j, eastToWest);
-				roads.add(l);
+			Source carsource = new SourceObj();
+			if (eastToWest) {
+				for (int j=columns; j>=0; j--) {
+					CarHandler l = new Road();
+					if (j == columns) {
+						carsource.setNextRoad(l);
+						l.setCurrentIntersection(intersections[i][j-1]);
+					}
+					else if (j == 0) {
+						intersections[i][j].setNextRoad(l);
+						l.setCurrentIntersection(new Sink());
+					}
+					else {
+						intersections[i][j].setNextRoad(l);
+						l.setCurrentIntersection(intersections[i][j-1]);
+					}
+
+					builder.addHorizontalRoad(l, i, j, eastToWest);
+					roads.add(l);
+				}
+			}
+			else {
+				for (int j=0; j<=columns; j++) {
+					CarHandler l = new Road();
+					if (j == 0) {
+						carsource.setNextRoad(l);
+						l.setCurrentIntersection(intersections[i][j]);
+					}
+					else if (j == columns) {
+						intersections[i][j-1].setNextRoad(l);
+						l.setCurrentIntersection(new Sink());
+					}
+					else {
+						intersections[i][j-1].setNextRoad(l);
+						l.setCurrentIntersection(intersections[i][j]);
+					}
+
+					builder.addHorizontalRoad(l, i, j, eastToWest);
+					roads.add(l);
+				}
 			}
 			eastToWest = !eastToWest;
 		}
@@ -106,19 +142,48 @@ public class Model extends Observable {
 		// Add Vertical Roads
 		boolean southToNorth = false;
 		for (int j=0; j<columns; j++) {
-			for (int i=0; i<=rows; i++) {
-				CarHandler l = new Road();
-				builder.addVerticalRoad(l, i, j, southToNorth);
-				roads.add(l);
+			Source carsource = new SourceObj();
+			if (southToNorth) {
+				for (int i=rows; i>=0; i--) {
+					CarHandler l = new Road();
+					if (i == rows) {
+						carsource.setNextRoad(l);
+						l.setCurrentIntersection(intersections[i-1][j]);
+					}
+					else if (i == 0) {
+						intersections[i][j].setNextRoad(l);
+						l.setCurrentIntersection(new Sink());
+					}
+					else {
+						intersections[i][j].setNextRoad(l);
+						l.setCurrentIntersection(intersections[i-1][j]);
+					}
+
+					builder.addVerticalRoad(l, i, j, southToNorth);
+					roads.add(l);
+				}
+			}
+			else {
+				for (int i=0; i<=rows; i++) {
+					CarHandler l = new Road();
+					if (i == 0) {
+						carsource.setNextRoad(l);
+						l.setCurrentIntersection(intersections[i][j]);	
+					}
+					else if (i == rows) {
+						intersections[i-1][j].setNextRoad(l);
+						l.setCurrentIntersection(new Sink());
+					}
+					else {
+						intersections[i-1][j].setNextRoad(l);
+						l.setCurrentIntersection(intersections[i][j]);
+					}
+
+					builder.addVerticalRoad(l, i, j, southToNorth);
+					roads.add(l);
+				}
 			}
 			southToNorth = !southToNorth;
-		}
-
-		// Add Cars
-		for (CarHandler l : roads) {
-			Car car = new Car();
-			time.enqueue(this.time.currentTime(), car);
-			l.accept(car, car.getFrontPosition());
 		}
 	}
 }

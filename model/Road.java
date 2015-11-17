@@ -20,14 +20,14 @@ public class Road implements CarHandler{
 	}
 	
 	public boolean accept(Car c, double frontPosition) {
-		if (c != null) {  
-			cars.remove(c); 
+		if (this.cars != null) {  
+			this.cars.remove(c); 
 		}
 		
 		if(frontPosition > endPosition) {
 			return nextRoad.accept(c, frontPosition - endPosition);
 		} else {
-			c.setCurrentRoad(this);
+			c.setRoad(this);
 			c.setFrontPosition(frontPosition);
 			cars.add(c);
 			return true;
@@ -46,7 +46,7 @@ public class Road implements CarHandler{
 	    double obstaclePosition = this.distanceToCarBack(fromPosition);
 	    if (obstaclePosition == Double.POSITIVE_INFINITY) {
 	      double distanceToEnd = fromPosition - this.endPosition;
-	      obstaclePosition = nextRoad.distanceToObstacle(fromPosition - this.endPosition);
+	      obstaclePosition = nextRoad.distanceToObstacle(0.0) + distanceToEnd;
 	      return obstaclePosition;
 	    }
 	    return obstaclePosition - fromPosition;
@@ -56,10 +56,27 @@ public class Road implements CarHandler{
 		return cars;
 	}
 
-	@Override
 	public void setCurrentIntersection(Intersections intersection) {
-		// TODO Auto-generated method stub
-		
+		this.nextRoad = intersection;
+	}
+
+	public Double getEndPosition() {
+		return endPosition;
+	}
+
+
+	public boolean remove(Car car) {
+		if(this.cars.contains(car)) {
+			this.cars.remove(car);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+	public Intersections getNextRoad() {
+		return nextRoad;
 	}
 	
 

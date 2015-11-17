@@ -8,6 +8,7 @@ import myproject.model.AnimatorBuilder;
 import myproject.model.Car;
 import myproject.model.Intersections;
 import myproject.model.MP;
+import myproject.model.Light.LightState;
 import myproject.model.CarHandler;
 import myproject.util.Animator;
 import myproject.util.SwingAnimator;
@@ -86,10 +87,10 @@ public class SwingAnimatorBuilder implements AnimatorBuilder {
 
 			// First draw the background elements
 			for (Element<Intersections> e : lightElements) {
-				if (e.x.getLight().getState()) {
-					g.setColor(Color.BLUE);
+				if (e.x.getLight().getState() == LightState.GREEN) {
+					g.setColor(Color.GREEN);
 				} else {
-					g.setColor(Color.YELLOW);
+					g.setColor(Color.RED);
 				}
 				XGraphics.fillOval(g, e.t, 0, 0, MP.carLength, VP.elementWidth);
 			}
@@ -103,7 +104,7 @@ public class SwingAnimatorBuilder implements AnimatorBuilder {
 				// iterate through a copy because e.x.getCars() may change during iteration...
 				for (Car d : e.x.getCars().toArray(new Car[0])) {
 					g.setColor(d.getColor());
-					XGraphics.fillOval(g, e.t, d.getPosition(), 0, MP.carLength, VP.elementWidth);
+					XGraphics.fillOval(g, e.t, ((d.getFrontPosition() * (MP.roadLength / d.getRoad().getEndPosition())) - d.getCarLength() * (MP.roadLength / d.getRoad().getEndPosition())), 0, MP.carLength, VP.elementWidth);
 				}
 			}
 		}

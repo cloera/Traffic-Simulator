@@ -34,10 +34,10 @@ public class Main {
 		}
 		*/
 		{
-			Model m = new Model(new SwingAnimatorBuilder(), 2, 3);
-			m.run(500);
-			m.run(500);
-			m.dispose();
+				Model m = new Model(new SwingAnimatorBuilder(), 3, 3);
+				m.run(500);
+				m.run(500);
+				m.dispose();
 		}
 		System.exit(0);
 	}

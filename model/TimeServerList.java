@@ -49,7 +49,8 @@ public final class TimeServerList extends Observable implements TimeServer {
 	}
 
 	public void enqueue(double waketime, Agent agent)
-			throws IllegalArgumentException {
+			throws IllegalArgumentException 
+			{
 		if (waketime < currentTime)
 			throw new IllegalArgumentException();
 		Node prevElement = head;
@@ -60,9 +61,10 @@ public final class TimeServerList extends Observable implements TimeServer {
 		Node newElement = new Node(waketime, agent, prevElement.next);
 		prevElement.next = newElement;
 		size++;
-	}
+			}
 
-	Agent dequeue() {
+	Agent dequeue() 
+	{
 		if (size < 1)
 			throw new java.util.NoSuchElementException();
 		Agent rval = head.next.agent;
@@ -82,12 +84,10 @@ public final class TimeServerList extends Observable implements TimeServer {
 	public void run(double duration) {
 		double endtime = currentTime + duration;
 		while ((!empty()) && (head.next.waketime <= endtime)) {
-			if ((currentTime - head.next.waketime) < 1e-09) {
+				currentTime = head.next.waketime;
+				dequeue().run(duration);
 				super.setChanged();
 				super.notifyObservers();
-			}
-			currentTime = head.next.waketime;
-			dequeue().run(duration-1);
 		}
 		currentTime = endtime;
 	}
