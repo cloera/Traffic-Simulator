@@ -13,7 +13,7 @@ public interface AnimatorBuilder {
 	 */
 	public Animator getAnimator();
 	/**
-	 *  Add the {@link Light} to the display at position <code>i,j</code>.
+	 *  Add the {@link LightObj} to the display at position <code>i,j</code>.
 	 */
 	public void addLight(Intersections intersections, int i, int j);
 	/**

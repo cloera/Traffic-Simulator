@@ -3,10 +3,10 @@ package myproject.model.text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-import myproject.model.AnimatorBuilder;
-import myproject.model.Car;
+
+import myproject.model.Vehicle;
 import myproject.model.Intersections;
-import myproject.model.Light.LightState;
+import myproject.model.AnimatorBuilder;
 import myproject.model.CarHandler;
 import myproject.util.Animator;
 
@@ -68,16 +68,16 @@ public class TextAnimatorBuilder implements AnimatorBuilder {
 		public void update(Observable o, Object arg) {
 			for (Element<Intersections> e : lightElements) {
 				System.out.print("Light at (" + e.i + "," + e.j + "): ");
-				if (e.x.getLight().getState() == LightState.GREEN) {
+				if (e.x.getLight().getState()) {
 					System.out.println("Green");
 				} else {
 					System.out.println("Red");
 				}
 			}
 			for (Element<CarHandler> e : roadElements) {
-				for (Car d : e.x.getCars()) {
+				for (Vehicle d : e.x.getCars()) {
 					System.out.print("Road at (" + e.i + "," + e.j + "): ");
-					System.out.println("Car at " + d.getPosition());
+					System.out.println("Car at " + d.getFrontPosition());
 				}
 			}
 		}

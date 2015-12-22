@@ -2,13 +2,15 @@ package myproject.model;
 
 import java.util.Set;
 
+import myproject.model.ObjBuilder.Orientation;
+
 
 public abstract interface CarHandler {
-	public boolean accept(Car c, double frontPosition);
-	public double distanceToObstacle(double fromPosition);
-	public Set<Car> getCars();
-	void setCurrentIntersection(Intersections intersection);
+	public boolean accept(Vehicle c, Double frontPosition);
+	public Double distanceToObstacle(Double fromPosition, Orientation orientation);
+	public Set<Vehicle> getCars();
+	public void setNextRoad(Intersections road);
 	public Double getEndPosition();
-	public boolean remove(Car car);
-	public Intersections getNextRoad();
+	public boolean remove(Vehicle car);
+	public Intersections getNextRoad(Orientation orientation);
 }

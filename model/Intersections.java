@@ -1,11 +1,14 @@
 package myproject.model;
 
+import myproject.model.ObjBuilder.Orientation;
+
 public interface Intersections {
-	public boolean accept(Car c, double frontPosition);
-	public void setNextRoad(CarHandler nextRoad);
-	public CarHandler getNextRoad();
-	public double distanceToObstacle(double d);
-	public Light getLight();
+	public boolean accept(Vehicle c, Double frontPosition);
+	public void setNextRoad(CarHandler nextRoad, Orientation orientation);
+	public CarHandler getNextRoad(Orientation orientation);
+	public Double distanceToObstacle(Double d, Orientation orientation);
+	public LightObj getLight();
+	public Orientation getOrientation();
 	public Double getEndPosition();
-	public boolean remove(Car car);
+	public boolean remove(Vehicle car);
 }

@@ -1,109 +1,122 @@
 package myproject.model;
 
+import myproject.util.TimeServer;
+import myproject.model.ObjBuilder.Orientation;
+import myproject.util.SettingsBag;
 
 /**
- * A car remembers its position from the beginning of its road.
- * Cars have random velocity and random movement pattern:
- * when reaching the end of a road, the dot either resets its position
- * to the beginning of the road, or reverses its direction.
+ * A car remembers its position from the beginning of its road. Cars have random
+ * velocity and random movement pattern: when reaching the end of a road, the
+ * dot either resets its position to the beginning of the road, or reverses its
+ * direction.
  */
-public class Car implements Agent {
+public class Car implements Agent, Vehicle {
 
-	private double position;
-	private double length;
-	private double velocity;
-	private double frontPosition;
-	private double stopDistance;
-	private double brakeDistance;
-	private double timeStep;
+	private Double length;
+	private Double velocity;
+	private Double frontPosition;
+	private Double stopDistance;
+	private Double brakeDistance;
+	private Double timeStep;
+	private Orientation orientation;
 	private boolean atIntersection;
-	private Intersections intersection;
+	private Intersections currentIntersection;
 	private CarHandler currentRoad;
 	private TimeServer time;
 	private java.awt.Color color;
+	private Integer roadSegmentsTraversed;
+	private SettingsBag sb = SettingsBag.makeSettingsBag();
 
-	
-	
-	Car() { 
-		this.position = 0;
-		this.length = MP.carLength;
-		this.velocity = (int) Math.ceil(Math.random() * MP.maxVelocity);
+	Car(Orientation orientation) {
+		this.length = Math.random() * sb.getCarLengthMax();
+		this.length = Math.max(sb.getCarLengthMin(), this.length);
+
+		this.velocity = Math.random() * sb.getCarMaxVelocityMax();
+		this.velocity = Math.max(sb.getCarMaxVelocityMin(), this.velocity);
+
+		this.stopDistance = Math.random() * sb.getCarStopDistanceMax();
+		this.stopDistance = Math.max(sb.getCarStopDistanceMin(), this.stopDistance);
+		this.stopDistance = Math.max(sb.getCarLengthMax() / 2, this.stopDistance);
+
+		this.brakeDistance = Math.random() * sb.getCarBrakeDistanceMax();
+		this.brakeDistance = Math.max(sb.getCarBrakeDistanceMin(), this.brakeDistance);
+		this.brakeDistance = Math.max(this.stopDistance, this.brakeDistance);
+
+		this.color = new java.awt.Color(100,191,220);
+		this.timeStep = sb.getTimeStep();
 		this.frontPosition = 0.0;
-		this.stopDistance = MP.carLength/2;
-		this.brakeDistance = this.stopDistance;
-		this.timeStep = MP.timeStep;
-		this.time = new TimeServerList();
-		this.color = new java.awt.Color((int)Math.ceil(Math.random()*155 + 100), 
-				(int)Math.ceil(Math.random()*155 + 100), 
-					(int)Math.ceil(Math.random()*155 + 100));
+		this.roadSegmentsTraversed = 0;
+
+		this.orientation = orientation;
+		this.time = this.sb.getTimeServer();
 	}
-	
 
 	public void run(double time) {
-				
+
 		double newVelocity = getNewVelocity();
 		setFrontPosition(newVelocity);
 		this.time.enqueue(this.time.currentTime() + this.timeStep, this);
 
 	}
-	
-	
-	void setRoad(CarHandler c) {
+
+	public void setRoad(CarHandler c) {
 		this.currentRoad = c;
 		this.atIntersection = false;
 	}
-	
-	void setFrontPosition(double frontPosition) {
+
+	public void setFrontPosition(Double frontPosition) {
 		Double endOfRoad;
-		if(this.atIntersection){
-			endOfRoad = this.intersection.getEndPosition();
+		if (this.atIntersection) {
+			endOfRoad = this.currentIntersection.getEndPosition();
 		} else {
 			endOfRoad = this.currentRoad.getEndPosition();
 		}
-		if(frontPosition > endOfRoad) {
-			if(this.atIntersection) {
-				Intersections newIntersection = this.intersection;
-				this.intersection.getNextRoad().accept(this, frontPosition - endOfRoad);
+		if (frontPosition > endOfRoad) {
+			if (this.atIntersection) {
+				Intersections newIntersection = this.currentIntersection;
+				this.currentIntersection.getNextRoad(this.orientation).accept(this, frontPosition - endOfRoad);
 				newIntersection.remove(this);
+				this.roadSegmentsTraversed++;
 				return;
 			} else {
 				CarHandler road = this.currentRoad;
-				this.currentRoad.getNextRoad().accept(this, frontPosition - endOfRoad);
+				this.currentRoad.getNextRoad(this.orientation).accept(this, frontPosition - endOfRoad);
 				road.remove(this);
+				this.roadSegmentsTraversed++;
 				return;
 			}
 		} else {
 			this.frontPosition = frontPosition;
 		}
 	}
-	
-	void setIntersection(Intersections intersection) {
-		this.intersection = intersection;
+
+	public void setIntersection(Intersections intersectionCarIsIn) {
+		this.currentIntersection = intersectionCarIsIn;
 		this.atIntersection = true;
 	}
-	
-	double backPosition() {
-		return this.frontPosition-this.length;
+
+	public Double getBackPosition() {
+		return this.frontPosition - this.length;
 	}
-	
-	private Double getNewVelocity() {
+
+	private double getNewVelocity() {
 		Double newVelocity;
 		Double distanceToObstacle;
 
-		if(atIntersection) {
-			distanceToObstacle = this.intersection.distanceToObstacle(this.frontPosition);
+		if (this.atIntersection) {
+			distanceToObstacle = this.currentIntersection.distanceToObstacle(this.frontPosition, this.orientation);
 		} else {
-			distanceToObstacle = this.currentRoad.distanceToObstacle(this.frontPosition);
+			distanceToObstacle = this.currentRoad.distanceToObstacle(this.frontPosition, this.orientation);
 		}
-		
 		if (distanceToObstacle == Double.POSITIVE_INFINITY) {
 			return this.frontPosition + this.velocity * this.timeStep;
 		}
-		
-		if (distanceToObstacle < this.velocity && (distanceToObstacle > this.brakeDistance || distanceToObstacle > this.stopDistance))
+		if (distanceToObstacle < this.velocity
+				&& (distanceToObstacle > this.brakeDistance || distanceToObstacle > this.stopDistance))
 			newVelocity = distanceToObstacle / 2;
 		else {
-			newVelocity = (this.velocity / (this.brakeDistance - this.stopDistance)) * (this.currentRoad.distanceToObstacle(this.frontPosition) - this.stopDistance);
+			newVelocity = (this.velocity / (this.brakeDistance - this.stopDistance))
+					* (this.currentRoad.distanceToObstacle(this.frontPosition, this.orientation) - this.stopDistance);
 		}
 		newVelocity = Math.max(0.0, newVelocity);
 		newVelocity = Math.min(this.velocity, newVelocity);
@@ -111,28 +124,46 @@ public class Car implements Agent {
 		return nextFrontPosition;
 	}
 
-	public double getFrontPosition() {
+	public Double getFrontPosition() {
 		return this.frontPosition;
 	}
-	
+
 	public CarHandler getRoad() {
 		return this.currentRoad;
 	}
-	
-	public double getCarLength() {
+
+	public Double getCarLength() {
 		return this.length;
 	}
-	
-	public double getStopDistance() {
+
+	public Double getStopDistance() {
 		return this.stopDistance;
 	}
-	
-	public double getPosition() {
-		return this.position;
+
+	public double getRoadSegmentsTraversed() {
+		return this.roadSegmentsTraversed;
 	}
-	
+
 	public java.awt.Color getColor() {
 		return color;
 	}
-	
+
+	public Double getBrakeDistance() {
+		return this.brakeDistance;
+	}
+
+	public Double getVelocity() {
+		return this.velocity;
+	}
+
+	public Double getTimeStep() {
+		return this.timeStep;
+	}
+
+
+	public Orientation getOrientation() {
+		return this.orientation;
+	}
+
+
 }

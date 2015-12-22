@@ -1,8 +1,10 @@
-package myproject.model;
+package myproject.util;
 
 
-import myproject.model.TimeServer;
 import java.util.Observable;
+
+import myproject.model.Agent;
+import myproject.util.TimeServer;
 
 public final class TimeServerList extends Observable implements TimeServer {
 	private static final class Node {

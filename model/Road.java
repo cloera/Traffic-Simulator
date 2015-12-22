@@ -2,6 +2,9 @@ package myproject.model;
 
 
 import java.util.Set;
+
+import myproject.model.ObjBuilder.Orientation;
+import myproject.util.SettingsBag;
 import java.util.HashSet;
 
 
@@ -10,16 +13,18 @@ import java.util.HashSet;
  */
 public class Road implements CarHandler{
 
-	private Set<Car> cars;
-	private double endPosition;
-	Intersections nextRoad;
+	private Set<Vehicle> cars;
+	private Double endPosition;
+	private Intersections nextRoad;
+	private SettingsBag sb = SettingsBag.makeSettingsBag();
 	
 	Road() { 
-		this.endPosition = MP.roadLength;
-		this.cars = new HashSet<Car>();
+		this.endPosition = Math.random() * this.sb.getRoadSegmentLengthMax();
+		this.endPosition = Math.max(this.endPosition, this.sb.getRoadSegmentLengthMin());
+		this.cars = new HashSet<Vehicle>();
 	}
 	
-	public boolean accept(Car c, double frontPosition) {
+	public boolean accept(Vehicle c, Double frontPosition) {
 		if (this.cars != null) {  
 			this.cars.remove(c); 
 		}
@@ -34,30 +39,30 @@ public class Road implements CarHandler{
 		}	
 	}
 	
-	private double distanceToCarBack(double fromPosition) {
+	private Double distanceToObstacleBack(Double fromPosition) {
 	    double carBackPosition = Double.POSITIVE_INFINITY;
-	    for (Car c : cars)
-	      if (c.backPosition() >= fromPosition && c.backPosition() < carBackPosition)
-	    	  carBackPosition = c.backPosition();
+	    for (Vehicle c : cars)
+	      if (c.getBackPosition() >= fromPosition && c.getBackPosition() < carBackPosition)
+	    	  carBackPosition = c.getBackPosition();
 	    return carBackPosition;
 	}
 	
-	public double distanceToObstacle(double fromPosition) {
-	    double obstaclePosition = this.distanceToCarBack(fromPosition);
+	public Double distanceToObstacle(Double fromPosition, Orientation orientation) {
+	    double obstaclePosition = this.distanceToObstacleBack(fromPosition);
 	    if (obstaclePosition == Double.POSITIVE_INFINITY) {
-	      double distanceToEnd = fromPosition - this.endPosition;
-	      obstaclePosition = nextRoad.distanceToObstacle(0.0) + distanceToEnd;
+	      double distanceToEnd = this.endPosition - fromPosition;
+	      obstaclePosition = nextRoad.distanceToObstacle(0.0, orientation) + distanceToEnd;
 	      return obstaclePosition;
 	    }
 	    return obstaclePosition - fromPosition;
 	}
 	
-	public Set<Car> getCars() {
+	public Set<Vehicle> getCars() {
 		return cars;
 	}
 
-	public void setCurrentIntersection(Intersections intersection) {
-		this.nextRoad = intersection;
+	public void setNextRoad(Intersections road) {
+		this.nextRoad = road;
 	}
 
 	public Double getEndPosition() {
@@ -65,7 +70,7 @@ public class Road implements CarHandler{
 	}
 
 
-	public boolean remove(Car car) {
+	public boolean remove(Vehicle car) {
 		if(this.cars.contains(car)) {
 			this.cars.remove(car);
 			return true;
@@ -75,7 +80,7 @@ public class Road implements CarHandler{
 	}
 
 
-	public Intersections getNextRoad() {
+	public Intersections getNextRoad(Orientation orientation) {
 		return nextRoad;
 	}
 	

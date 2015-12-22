@@ -1,39 +1,42 @@
 package myproject.model;
 
+import myproject.model.ObjBuilder.Orientation;
+
 final class Sink implements Intersections {
 
 	Sink() {}
 
-	public boolean accept(Car c, double frontPosition) {
+	public boolean accept(Vehicle c, Double frontPosition) {
 		return true;
 	}
 
-	public void setNextRoad(CarHandler nextRoad) {
-		return;
+	public void setNextRoad(CarHandler nextRoad, Orientation orientation) {
+		throw new UnsupportedOperationException();
 	}
 
-	public CarHandler getNextRoad() {
-		return null;
+	public CarHandler getNextRoad(Orientation orientation) {
+		throw new UnsupportedOperationException();
 	}
 
-	public double distanceToObstacle(double d) {
+	public Double distanceToObstacle(Double d, Orientation orientation) {
 		return Double.POSITIVE_INFINITY;
 	}
 
-	public Light getLight() {
+	public LightObj getLight() {
 		return null;
 	}
 
 
 	public Double getEndPosition() {
-
-		return null;
+		return Double.POSITIVE_INFINITY;
 	}
 
 
-	public boolean remove(Car car) {
-
-		return false;
+	public boolean remove(Vehicle car) {
+		throw new UnsupportedOperationException();
 	}
 
+	public Orientation getOrientation() {
+		throw new UnsupportedOperationException();
+	}
 }

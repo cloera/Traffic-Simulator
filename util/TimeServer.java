@@ -1,4 +1,6 @@
-package myproject.model;
+package myproject.util;
+
+import myproject.model.Agent;
 
 public interface TimeServer {
 	public double currentTime();

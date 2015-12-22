@@ -4,12 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
-import myproject.model.AnimatorBuilder;
-import myproject.model.Car;
+
 import myproject.model.Intersections;
 import myproject.model.MP;
-import myproject.model.Light.LightState;
+import myproject.model.AnimatorBuilder;
 import myproject.model.CarHandler;
+import myproject.model.Vehicle;
 import myproject.util.Animator;
 import myproject.util.SwingAnimator;
 import myproject.util.SwingAnimatorPainter;
@@ -87,10 +87,10 @@ public class SwingAnimatorBuilder implements AnimatorBuilder {
 
 			// First draw the background elements
 			for (Element<Intersections> e : lightElements) {
-				if (e.x.getLight().getState() == LightState.GREEN) {
+				if (e.x.getLight().getState()) {
 					g.setColor(Color.GREEN);
 				} else {
-					g.setColor(Color.RED);
+					g.setColor(Color.orange);
 				}
 				XGraphics.fillOval(g, e.t, 0, 0, MP.carLength, VP.elementWidth);
 			}
@@ -102,9 +102,9 @@ public class SwingAnimatorBuilder implements AnimatorBuilder {
 			// Then draw the foreground elements
 			for (Element<CarHandler> e : roadElements) {
 				// iterate through a copy because e.x.getCars() may change during iteration...
-				for (Car d : e.x.getCars().toArray(new Car[0])) {
+				for (Vehicle d : e.x.getCars().toArray(new Vehicle[0])) {
 					g.setColor(d.getColor());
-					XGraphics.fillOval(g, e.t, ((d.getFrontPosition() * (MP.roadLength / d.getRoad().getEndPosition())) - d.getCarLength() * (MP.roadLength / d.getRoad().getEndPosition())), 0, MP.carLength, VP.elementWidth);
+					XGraphics.fillOval(g, e.t, ((d.getFrontPosition() * (MP.roadLength / d.getRoad().getEndPosition())) - d.getCarLength() * (MP.roadLength / d.getRoad().getEndPosition())), 0, d.getCarLength(), VP.elementWidth);
 				}
 			}
 		}

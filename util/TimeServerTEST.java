@@ -1,7 +1,9 @@
-package myproject.model;
+package myproject.util;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+
+import myproject.model.Agent;
 
 
 public class TimeServerTEST {
